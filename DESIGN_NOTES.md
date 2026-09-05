@@ -1,72 +1,35 @@
-# PennAiR Software Challenge — Design Process & Notes
+# PennAiR Software Challenge — Design Notes
 
-An overview of the approach taken for each part, the key decisions made, and the
-trade-offs behind them.
+My process for each part, and the main decisions I made along the way.
 
-## Part 1 — Shape detection on a static image
+## Part 1 — Static image
 
-- **Started with colour-based detection.** The first approach identified the grass
-  by its green hue in HSV and treated everything else as a shape. This worked for
-  four of the five shapes but **failed on the green shape**, whose colour fell inside
-  the grass hue range and was erased along with the background.
-- **Switched to texture-based detection.** Instead of colour, the detector measures
-  local texture (how much pixels vary in a small neighbourhood): grass is busy and
-  high-variance, the shapes are smooth and low-variance. This makes detection
-  **colour-blind**, so it correctly finds the green shape and any colour of shape.
-- **Restructured the code for reuse.** Knowing later parts would need the same
-  detection, the core logic was written as a single reusable function returning the
-  annotated image, the mask, and the list of shapes — so Parts 2–4 could import and
-  reuse it without duplication.
-- **Accepted a trade-off in edge quality.** Texture detection produces slightly
-  rougher, wobblier outlines than the crisp colour method did. This was judged a
-  worthwhile trade-off: robustness to background and colour matters more here than
-  pixel-perfect edges.
-- **Tuning.** The initial texture threshold, window size, and area floor were not
-  accurate out of the box; these were adjusted until all five shapes were cleanly
-  detected.
-- **Outline colour.** The outline was initially bright green, which was invisible on
-  the green shape. It was changed to a distinct colour so every shape's outline is
-  clearly visible regardless of the shape's own colour.
+I started by trying to detect the shapes through color; find the green grass in HSV and treat everything else as a shape. This worked for four shapes but failed on the green one, because its colour fell into the same range as the grass and got erased with the background.
 
-## Part 2 — Shape detection on video
+So I switched to detecting by texture instead of colour. The idea is that grass is busy (pixels vary a lot in a small area) while the shapes are smooth (pixels barely vary). Measuring that local variation makes the detection completely colour-blind, so it finds the green shape and any other colour too.
 
-- A video is a sequence of frames, so this part reuses the Part 1 detector, applied
-  frame by frame as a **streamed input** (one frame read and processed at a time, with
-  no knowledge of future frames — the same constraint a live camera has).
-- The video needed a **higher area floor** than the static image to reject small
-  transient patches of grass that briefly read as smooth. This was passed in per-video
-  rather than changing the shared detector.
+I also knew I'd be reusing this in the later parts, so I wrote the detection as one function that returns everything I'd need later (the outlined image, the mask, and the list of shapes), rather than something I'd have to rewrite each time.
 
-## Part 3 — Background-agnostic detection
+One tradeoff was that texture detection gives slightly rougher, wobblier outlines than the clean color method did. I decided that was worth it because being accurate to color and background matters more than perfect edges.
 
-- The **same detector from Part 2 worked on the harder video** with only minor
-  calibration of its parameters — no rewrite.
-- This is the payoff of the texture approach: because detection never depended on
-  colour, it transferred directly from a green grass background to a completely
-  different greyscale background. The stricter background needed a lower texture
-  threshold and a higher area floor to suppress false positives, but the underlying
-  method was unchanged.
-- **Known limitation:** texture separation relies on shapes being smoother than the
-  background. It works well here, but would struggle if a background contained large
-  smooth regions of its own. A natural next step would be to select the texture
-  threshold automatically per frame (e.g. Otsu's method) rather than tuning it by hand.
+The starting values for the texture threshold, window size and area floor weren't quite right, so I played around with them until all five shapes came out cleanly. I also changed the outline color, since it was bright green at first and you couldn't see it at all on the green shape.
 
-## Part 4 — 3D position (depth)
+## Part 2 — Video
 
-- A camera discards depth, but if an object's real size is known, depth can be
-  recovered from its apparent size using the camera's focal length:
-  **Z = (focal length × real radius) / pixel radius**. The real X and Y are then
-  back-projected from the centre pixel using the depth.
-- **Applied to the circle only**, since the circle's real radius (10 in) is the only
-  real-world dimension given. The other shapes have no supplied dimensions, so depth
-  cannot be estimated for them from the given information.
-- **Assumption:** the supplied intrinsic matrix listed the principal point at (0, 0),
-  which is not physically meaningful, so the image centre was used as the principal
-  point instead.
+A video is just a sequence of frames, so this part reuses the Part 1 function and runs it on each frame one at a time (a streamed input). The only change I needed was a higher area floor than the static image, to ignore small bits of grass that briefly looked smooth.
+
+## Part 3 — Background agnostic
+
+The same detector from Part 2 worked here too, just with a few tweaks to the values. Because the Part 2 detector never cared about color, it moved straight from green grass to a completely different background without a rewrite. The harder background needed a stricter texture threshold and a higher area floor to stop false detections, but the method itself didn't change.
+
+The limitation is that this relies on the shapes being smoother than whatever's behind them. It works well here, but it would struggle if a background had big smooth patches of its own. If I took it further I'd probably pick the threshold automatically per frame instead of tuning it by hand.
+
+## Part 4 — 3D position
+
+I used the calculation for depth = (focal length × real radius) / pixel radius. Once I had the depth I worked out the real x and y of the center from the center pixel.
+
+I only did this for the circle, since its real radius (10 in) is the only real-world measurement given. The other shapes don't have any given dimensions, so there's nothing to compare their apparent size against. The given intrinsic matrix also listed the principal point as (0,0), which doesn't make physical sense, so I used the image center instead.
 
 ---
 
-Thank you so much for putting this challenge together — I had a lot of fun working
-through it, and it was a genuinely enjoyable way to learn computer vision from the
-ground up. I really appreciate the time you spent reviewing this, and I hope to get
-the chance to keep building this kind of thing with the team.
+Thank you so much for putting this together — I genuinely had a lot of fun with it, and it was a really nice way to learn computer vision from scratch. I appreciate you taking the time to look through it, and I'd love the chance to keep working on this kind of thing with the team.
