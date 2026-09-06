@@ -43,12 +43,12 @@ All five shapes detected, outlined, and centre-marked.
 ![Part 1 output](part1_output.png)
 
 ### Part 2 — Video
-[![Part 2 demo](part1_output.png)](PASTE_YOUR_YOUTUBE_LINK_HERE)
+_Screen recording_: https://youtu.be/4_yn4VP_6AI
 
 ### Part 3 — Harder background
 The same detector, unchanged, on a completely different background.
 
-[![Part 3 demo](part1_output.png)](PASTE_YOUR_YOUTUBE_LINK_HERE)
+_Screen recording_: https://youtu.be/oPQOH0CTTU0
 
 ### Part 4 — 3D position
 The circle, labelled with its estimated depth.
