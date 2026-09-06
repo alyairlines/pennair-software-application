@@ -50,12 +50,12 @@ All five shapes detected, outlined, and centre-marked.
 ![Part 1 output](part1_output.png)
 
 ### Part 2 — Video
-_Screen recording:_ [add YouTube link]
+_Screen recording:_ https://youtu.be/4_yn4VP_6AI?is=sOnfna6qLnhRjqSl
 
 ### Part 3 — Background-agnostic video
 The same detector, unchanged, on a completely different background.
 
-_Screen recording:_ [add YouTube link]
+_Screen recording:_ https://youtu.be/oPQOH0CTTU0?is=8GNdOc1psjIYBDPc
 
 ### Part 4 — 3D position
 Circle labelled with its estimated depth.
