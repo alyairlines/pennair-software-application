@@ -1,4 +1,4 @@
-# PennAiR Software Challenge — Shape Detection
+# PennAiR Software Challenge
 
 Detecting solid shapes on a background, tracing their outlines, marking their centres, and estimating the circle's 3D position. Initially across a static image, then two videos, including a harder background-agnostic case.
 
